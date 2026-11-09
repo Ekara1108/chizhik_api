@@ -1,7 +1,7 @@
 import os
+import requests
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from chizhik_api.manager import ChizhikAPI
 
 app = FastAPI()
 
@@ -12,12 +12,27 @@ class CartItem(BaseModel):
 
 @app.post("/add_to_cart")
 async def add_to_cart(item: CartItem):
-    proxy = os.getenv("PROXY_URL")
+    api_key = os.getenv("PROXYAPI_KEY")
+    
+    # URL, куда ваш сервер будет отправлять запрос к Чижику через ProxyAPI
+    # (Точный адрес запроса корзины берется из документации API Чижика)
+    chizhik_url = "https://chizhik.ru" 
+    
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    
+    payload = {
+        "phone": item.phone,
+        "product_id": item.product_id,
+        "quantity": item.quantity
+    }
+    
     try:
-        async with ChizhikAPI(proxy=proxy, headless=True) as api:
-            # Здесь библиотека выполнит авторизацию и добавление
-            # Для полноценной работы с СМС потребуется доработка,
-            # но этот код позволит серверу успешно запуститься
-            return {"status": "success", "message": f"Добавлен товар {item.product_id}"}
+        # Отправляем запрос в Чижик через шлюз ProxyAPI
+        response = requests.post(chizhik_url, json=payload, headers=headers)
+        return {"status": "success", "data": response.json()}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
