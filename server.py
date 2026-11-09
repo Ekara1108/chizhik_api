@@ -16,7 +16,7 @@ async def add_to_cart(item: CartItem):
     
     # URL, куда ваш сервер будет отправлять запрос к Чижику через ProxyAPI
     # (Точный адрес запроса корзины берется из документации API Чижика)
-    chizhik_url = "https://chizhik.ru" 
+    chizhik_url = "https://proxyapi.ru" 
     
     headers = {
         "Authorization": f"Bearer {api_key}",
